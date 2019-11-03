@@ -36,95 +36,93 @@ void setup() {
 
 void loop() {
 	if (millis() - timer1 >= SENSOR_RATE) {
-		float sensorPpm;
+		float sensorReading;
 
 		float ppmReadings[7];
 		float voltageReadings[2];
 
 		Serial.println("Multichannel gas sensor readings");
 
-		sensorPpm = gas.measure_NH3();
+		sensorReading = gas.measure_NH3();
 		Serial.print("NH3= ");
-		if (sensorPpm >= 0)
-			Serial.print(sensorPpm / 10e3);
+		if (sensorReading >= 0)
+			Serial.print(sensorReading / 10e3);
 		else
 			Serial.print("invalid");
 		Serial.println(" %");
-		ppmReadings[0] = sensorPpm;
+		ppmReadings[0] = sensorReading;
 
-		sensorPpm = gas.measure_CO();
+		sensorReading = gas.measure_CO();
 		Serial.print("CO= ");
-		if (sensorPpm >= 0)
-			Serial.print(sensorPpm / 10e3);
+		if (sensorReading >= 0)
+			Serial.print(sensorReading / 10e3);
 		else
 			Serial.print("invalid");
 		Serial.println(" %");
-		ppmReadings[1] = sensorPpm;
+		ppmReadings[1] = sensorReading;
 
-		sensorPpm = gas.measure_NO2();
+		sensorReading = gas.measure_NO2();
 		Serial.print("NO2= ");
-		if (sensorPpm >= 0)
-			Serial.print(sensorPpm / 10e3);
+		if (sensorReading >= 0)
+			Serial.print(sensorReading / 10e3);
 		else
 			Serial.print("invalid");
 		Serial.println(" %");
-		ppmReadings[2] = sensorPpm;
+		ppmReadings[2] = sensorReading;
 
-		sensorPpm = gas.measure_C3H8();
+		sensorReading = gas.measure_C3H8();
 		Serial.print("C3H8= ");
-		if (sensorPpm >= 0)
-			Serial.print(sensorPpm / 10e3);
+		if (sensorReading >= 0)
+			Serial.print(sensorReading / 10e3);
 		else
 			Serial.print("invalid");
 		Serial.println(" %");
-		ppmReadings[3] = sensorPpm;
+		ppmReadings[3] = sensorReading;
 
-		sensorPpm = gas.measure_C4H10();
+		sensorReading = gas.measure_C4H10();
 		Serial.print("C4H10= ");
-		if (sensorPpm >= 0)
-			Serial.print(sensorPpm / 10e3);
+		if (sensorReading >= 0)
+			Serial.print(sensorReading / 10e3);
 		else
 			Serial.print("invalid");
 		Serial.println(" %");
-		ppmReadings[4] = sensorPpm;
+		ppmReadings[4] = sensorReading;
 
-		sensorPpm = gas.measure_CH4();
+		sensorReading = gas.measure_CH4();
 		Serial.print("CH4= ");
-		if (sensorPpm >= 0)
-			Serial.print(sensorPpm / 10e3);
+		if (sensorReading >= 0)
+			Serial.print(sensorReading / 10e3);
 		else
 			Serial.print("invalid");
 		Serial.println(" %");
-		ppmReadings[5] = sensorPpm;
+		ppmReadings[5] = sensorReading;
 
-		sensorPpm = gas.measure_H2();
+		sensorReading = gas.measure_H2();
 		Serial.print("H2= ");
-		if (sensorPpm >= 0)
-			Serial.print(sensorPpm / 10e3);
+		if (sensorReading >= 0)
+			Serial.print(sensorReading / 10e3);
 		else
 			Serial.print("invalid");
 		Serial.println(" %");
-		ppmReadings[6] = sensorPpm;
+		ppmReadings[6] = sensorReading;
 
 		//* Gas Leakage sensor
 		Serial.println("\nMQ2 gas sensor readings");
 
-		float sensorVoltage;
-
-		sensorVoltage = analogRead(A0) / 1024 * 5.0;
+		sensorReading = analogRead(A0) / 1024 * 5.0;
 
 		Serial.print("MQ2 reading = ");
-		Serial.print(sensorVoltage);
+		Serial.print(sensorReading);
 		Serial.println("V");
-		voltageReadings[0] = sensorVoltage;
+		voltageReadings[0] = sensorReading;
 
 		//* HCHO sensor
-		sensorVoltage = analogRead(A1) / 1024 * 5.0;
+		sensorReading = analogRead(A1) / 1024 * 5.0;
 
 		Serial.print("HCHO reading = ");
-		Serial.print(sensorVoltage);
+		Serial.print(sensorReading);
 		Serial.println("V");
-		voltageReadings[1] = sensorVoltage;
+		voltageReadings[1] = sensorReading;
 
 		timer2++;
 		if (timer2 >= WIFI_RATE_MULTIPLIER) {
@@ -134,6 +132,11 @@ void loop() {
 
 			for (int i = 0; i < 7; i++) {
 				dtostrf(ppmReadings[i], 10, 4, str);
+				sendData(wifiSerial, str, TIMEOUT, DEBUG);
+			}
+
+			for (int i = 0; i < 1; i++) {
+				dtostrf(voltageReadings[i], 10, 4, str);
 				sendData(wifiSerial, str, TIMEOUT, DEBUG);
 			}
 		}
