@@ -43,6 +43,7 @@ void setup() {
 	//* WIFI Serial
 	wifiSerial.begin(115200);
 
+	//* Wifi stack startup: server mode.
 	sendToWifi(wifiSerial, "AT+CWMODE=2", TIMEOUT, DEBUG);
 	sendToWifi(wifiSerial, "AT+CIFSR", TIMEOUT, DEBUG);
 	sendToWifi(wifiSerial, "AT+CIPMUX=1", TIMEOUT, DEBUG);
