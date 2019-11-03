@@ -31,8 +31,7 @@ String sendToWifi(SoftwareSerial wifiSerial, String command, const int timeout, 
 {
   String response = "";
   wifiSerial.println(command); // send the read character to the esp8266
-  long int time = millis();
-  while ((time + timeout) > millis())
+  while ((millis() + timeout) > millis())
   {
     while (wifiSerial.available())
     {

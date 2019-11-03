@@ -5,7 +5,7 @@ String sendToWifi(SoftwareSerial wifiSerial, String command, const int timeout, 
 
 String readWifiSerialMessage(SoftwareSerial wifiSerial);
 
-void sendData(String str);
+void sendData(SoftwareSerial wifiSerial, String str, int responseTime, boolean debug);
 
 boolean find(String string, String value);
 
