@@ -1,20 +1,37 @@
+//! Settings file
+#include "settings.h"
+
+//! Arduino libraries
 #include <Arduino.h>
-#include <Wire.h>
 #include <SoftwareSerial.h>
+#include <Wire.h>
 #include "MutichannelGasSensor.h"
+
+//! Custom libraries
+#include "wifi.h"
 
 SoftwareSerial wifiSerial = SoftwareSerial(2, 3);
 
-void setup()
-{
+unsigned long timer1 = millis();
+byte timer2 = 0;
+
+void setup() {
+	//* USB Serial
 	Serial.begin(9600);
 	Serial.println("Starting...");
 
+	//* Gas sensor power on
 	gas.begin();
 	gas.powerOn();
 
-	Serial.println("Firmware version : ");
-	Serial.println(gas.getVersion());
+	//* WIFI Serial
+	wifiSerial.begin(115200);
+
+	sendToWifi(wifiSerial, "AT+CWMODE=2", TIMEOUT, DEBUG);
+	sendToWifi(wifiSerial, "AT+CIFSR", TIMEOUT, DEBUG);
+	sendToWifi(wifiSerial, "AT+CIPMUX=1", TIMEOUT, DEBUG);
+	sendToWifi(wifiSerial, "AT+CIPSERVER=1,80", TIMEOUT, DEBUG);
+	sendToUno("Wifi Connection is running", TIMEOUT, DEBUG);
 }
 
 void loop()
