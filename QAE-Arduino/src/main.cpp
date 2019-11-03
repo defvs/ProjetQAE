@@ -1,3 +1,19 @@
+//! ProjetQAE-Arduino (c) Daniel THIRION & Antonin ESTELLE
+//! Licensed under LGPLv3. A copy of the license should have been given
+//! with the software. If not, find it online.
+//? -------------------------------------------------------------------
+//? File Name: main.cpp
+//? Author: Daniel THIRION
+//? Co-author: Antonin ESTELLE
+//? Supervision: M. CONTARET, IUT GEII Salon de Provence
+//? Last modified: 3/11/2019
+//? -------------------------------------------------------------------
+//* Description
+/* Part of ProjetQAE : Using Arduino, gas sensors, a RPi and a web server,
+   Monitor and display the current air quality.
+   More info at https://github.com/defvs/ProjetQAE
+*/
+
 //! Settings file
 #include "settings.h"
 
@@ -147,7 +163,7 @@ void loop() {
 		//! Wifi Transmission
 		timer2++;
 		if (timer2 >= WIFI_RATE_MULTIPLIER) {  //? Every WIFI_RATE_MULTIPLIER iterations
-			timer2 = 0; //? reset iteration count
+			timer2 = 0;						   //? reset iteration count
 
 			char* str;  //? String buffer
 
