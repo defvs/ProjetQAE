@@ -34,88 +34,110 @@ void setup() {
 	sendToUno("Wifi Connection is running", TIMEOUT, DEBUG);
 }
 
-void loop()
-{
-	float c;
+void loop() {
+	if (millis() - timer1 >= SENSOR_RATE) {
+		float sensorPpm;
 
-	Serial.println("Multichannel gas sensor readings");
+		float ppmReadings[7];
+		float voltageReadings[2];
 
-	c = gas.measure_NH3();
-	Serial.print("NH3= ");
-	if (c >= 0)
-		Serial.print(c/10e3);
-	else
-		Serial.print("invalid");
-	Serial.println(" %");
+		Serial.println("Multichannel gas sensor readings");
 
-	c = gas.measure_CO();
-	Serial.print("CO= ");
-	if (c >= 0)
-		Serial.print(c/10e3);
-	else
-		Serial.print("invalid");
-	Serial.println(" %");
+		sensorPpm = gas.measure_NH3();
+		Serial.print("NH3= ");
+		if (sensorPpm >= 0)
+			Serial.print(sensorPpm / 10e3);
+		else
+			Serial.print("invalid");
+		Serial.println(" %");
+		ppmReadings[0] = sensorPpm;
 
-	c = gas.measure_NO2();
-	Serial.print("NO2= ");
-	if (c >= 0)
-		Serial.print(c/10e3);
-	else
-		Serial.print("invalid");
-	Serial.println(" %");
+		sensorPpm = gas.measure_CO();
+		Serial.print("CO= ");
+		if (sensorPpm >= 0)
+			Serial.print(sensorPpm / 10e3);
+		else
+			Serial.print("invalid");
+		Serial.println(" %");
+		ppmReadings[1] = sensorPpm;
 
-	c = gas.measure_C3H8();
-	Serial.print("C3H8= ");
-	if (c >= 0)
-		Serial.print(c/10e3);
-	else
-		Serial.print("invalid");
-	Serial.println(" %");
+		sensorPpm = gas.measure_NO2();
+		Serial.print("NO2= ");
+		if (sensorPpm >= 0)
+			Serial.print(sensorPpm / 10e3);
+		else
+			Serial.print("invalid");
+		Serial.println(" %");
+		ppmReadings[2] = sensorPpm;
 
-	c = gas.measure_C4H10();
-	Serial.print("C4H10= ");
-	if (c >= 0)
-		Serial.print(c/10e3);
-	else
-		Serial.print("invalid");
-	Serial.println(" %");
+		sensorPpm = gas.measure_C3H8();
+		Serial.print("C3H8= ");
+		if (sensorPpm >= 0)
+			Serial.print(sensorPpm / 10e3);
+		else
+			Serial.print("invalid");
+		Serial.println(" %");
+		ppmReadings[3] = sensorPpm;
 
-	c = gas.measure_CH4();
-	Serial.print("CH4= ");
-	if (c >= 0)
-		Serial.print(c/10e3);
-	else
-		Serial.print("invalid");
-	Serial.println(" %");
+		sensorPpm = gas.measure_C4H10();
+		Serial.print("C4H10= ");
+		if (sensorPpm >= 0)
+			Serial.print(sensorPpm / 10e3);
+		else
+			Serial.print("invalid");
+		Serial.println(" %");
+		ppmReadings[4] = sensorPpm;
 
-	c = gas.measure_H2();
-	Serial.print("H2= ");
-	if (c >= 0)
-		Serial.print(c/10e3);
-	else
-		Serial.print("invalid");
-	Serial.println(" %");
+		sensorPpm = gas.measure_CH4();
+		Serial.print("CH4= ");
+		if (sensorPpm >= 0)
+			Serial.print(sensorPpm / 10e3);
+		else
+			Serial.print("invalid");
+		Serial.println(" %");
+		ppmReadings[5] = sensorPpm;
 
-	//* Gas Leakage sensor
-	Serial.println("\nMQ2 gas sensor readings");
+		sensorPpm = gas.measure_H2();
+		Serial.print("H2= ");
+		if (sensorPpm >= 0)
+			Serial.print(sensorPpm / 10e3);
+		else
+			Serial.print("invalid");
+		Serial.println(" %");
+		ppmReadings[6] = sensorPpm;
 
-	float sensor_volt;
-	float sensorValue;
+		//* Gas Leakage sensor
+		Serial.println("\nMQ2 gas sensor readings");
 
-	sensorValue = analogRead(A0);
-	sensor_volt = sensorValue / 1024 * 5.0;
+		float sensorVoltage;
 
-	Serial.print("MQ2 reading = ");
-	Serial.print(sensor_volt);
-	Serial.println("V");
+		sensorVoltage = analogRead(A0) / 1024 * 5.0;
 
-	//* HCHO sensor
-	sensorValue = analogRead(A1);
-	sensor_volt = sensorValue / 1024 * 5.0;
+		Serial.print("MQ2 reading = ");
+		Serial.print(sensorVoltage);
+		Serial.println("V");
+		voltageReadings[0] = sensorVoltage;
 
-	Serial.print("HCHO reading = ");
-	Serial.print(sensor_volt);
-	Serial.println("V");
+		//* HCHO sensor
+		sensorVoltage = analogRead(A1) / 1024 * 5.0;
 
-	delay(3000);
+		Serial.print("HCHO reading = ");
+		Serial.print(sensorVoltage);
+		Serial.println("V");
+		voltageReadings[1] = sensorVoltage;
+
+		timer2++;
+		if (timer2 >= WIFI_RATE_MULTIPLIER) {
+			timer2 = 0;
+
+			char* str;
+
+			for (int i = 0; i < 7; i++) {
+				dtostrf(ppmReadings[i], 10, 4, str);
+				sendData(wifiSerial, str, TIMEOUT, DEBUG);
+			}
+		}
+
+		timer1 = millis();
+	}
 }
