@@ -24,19 +24,17 @@
 * Params: 
 * Returns: The response from the esp8266 (if there is a reponse)
 */
-String readWifiSerialMessage(SoftwareSerial wifiSerial)
-{
-  char value[100];
-  int index_count = 0;
-  while (wifiSerial.available() > 0)
-  {
-    value[index_count] = wifiSerial.read();
-    index_count++;
-    value[index_count] = '\0'; // Null terminate the string
-  }
-  String str(value);
-  str.trim();
-  return str;
+String readWifiSerialMessage(SoftwareSerial wifiSerial) {
+	char value[100];
+	int index_count = 0;
+	while (wifiSerial.available() > 0) {
+		value[index_count] = wifiSerial.read();
+		index_count++;
+		value[index_count] = '\0';  // Null terminate the string
+	}
+	String str(value);
+	str.trim();
+	return str;
 }
 
 /*
@@ -45,24 +43,20 @@ String readWifiSerialMessage(SoftwareSerial wifiSerial)
 * Params: command - the data/command to send; timeout - the time to wait for a response; debug - print to Serial window?(true = yes, false = no)
 * Returns: The response from the esp8266 (if there is a reponse)
 */
-String sendToWifi(SoftwareSerial wifiSerial, String command, const int timeout, boolean debug)
-{
-  String response = "";
-  wifiSerial.println(command); // send the read character to the esp8266
-  while ((millis() + timeout) > millis())
-  {
-    while (wifiSerial.available())
-    {
-      // The esp has data so display its output to the serial window
-      char c = wifiSerial.read(); // read the next character.
-      response += c;
-    }
-  }
-  if (debug)
-  {
-    Serial.println(response);
-  }
-  return response;
+String sendToWifi(SoftwareSerial wifiSerial, String command, const int timeout, boolean debug) {
+	String response = "";
+	wifiSerial.println(command);  // send the read character to the esp8266
+	while ((millis() + timeout) > millis()) {
+		while (wifiSerial.available()) {
+			// The esp has data so display its output to the serial window
+			char c = wifiSerial.read();  // read the next character.
+			response += c;
+		}
+	}
+	if (debug) {
+		Serial.println(response);
+	}
+	return response;
 }
 
 /*
@@ -71,25 +65,21 @@ String sendToWifi(SoftwareSerial wifiSerial, String command, const int timeout, 
 * Params: command - the data/command to send; timeout - the time to wait for a response; debug - print to Serial window?(true = yes, false = no)
 * Returns: The response from the esp8266 (if there is a reponse)
 */
-String sendToUno(String command, const int timeout, boolean debug)
-{
-  String response = "";
-  Serial.println(command); // send the read character to the esp8266
-  long int time = millis();
-  while ((time + timeout) > millis())
-  {
-    while (Serial.available())
-    {
-      // The esp has data so display its output to the serial window
-      char c = Serial.read(); // read the next character.
-      response += c;
-    }
-  }
-  if (debug)
-  {
-    Serial.println(response);
-  }
-  return response;
+String sendToUno(String command, const int timeout, boolean debug) {
+	String response = "";
+	Serial.println(command);  // send the read character to the esp8266
+	long int time = millis();
+	while ((time + timeout) > millis()) {
+		while (Serial.available()) {
+			// The esp has data so display its output to the serial window
+			char c = Serial.read();  // read the next character.
+			response += c;
+		}
+	}
+	if (debug) {
+		Serial.println(response);
+	}
+	return response;
 }
 
 /*
@@ -98,15 +88,14 @@ String sendToUno(String command, const int timeout, boolean debug)
 * Params: 
 * Returns: void
 */
-void sendData(SoftwareSerial wifiSerial, String str, int responseTime, boolean debug)
-{
-  String len = "";
-  len += str.length();
-  sendToWifi(wifiSerial, "AT+CIPSEND=0," + len, responseTime, debug);
-  delay(100);
-  sendToWifi(wifiSerial, str, responseTime, debug);
-  delay(100);
-  sendToWifi(wifiSerial, "AT+CIPCLOSE=5", responseTime, debug);
+void sendData(SoftwareSerial wifiSerial, String str, int responseTime, boolean debug) {
+	String len = "";
+	len += str.length();
+	sendToWifi(wifiSerial, "AT+CIPSEND=0," + len, responseTime, debug);
+	delay(100);
+	sendToWifi(wifiSerial, str, responseTime, debug);
+	delay(100);
+	sendToWifi(wifiSerial, "AT+CIPCLOSE=5", responseTime, debug);
 }
 
 /*
@@ -115,7 +104,6 @@ void sendData(SoftwareSerial wifiSerial, String str, int responseTime, boolean d
 * Params: 
 * Returns: true if match else false
 */
-boolean find(String string, String value)
-{
-  return string.indexOf(value) >= 0;
+boolean find(String string, String value) {
+	return string.indexOf(value) >= 0;
 }
