@@ -25,37 +25,42 @@
 
 #include <ArduinoJson.h>
 
-HTTPClient client;
+HTTPClient client; //? Http client for POST requests
 int sendHttpPost(String);
 
 void setup() {
-	Serial.begin(9600);
+	//* Setup serial communication with the Uno
+	Serial.begin(115200);
 	Serial.println("ESP=poweron");
 
+	//* Start wifi connection to the AP
 	if (QAE_SECURITY_TYPE == "open")
 		WiFi.begin(QAE_SSID);
 	else
 		WiFi.begin(QAE_SSID, QAE_PASSWORD);
 	Serial.println("ESP=wificonnect");
 
+	//* Error out until connected to the AP
 	while (WiFi.status() != WL_CONNECTED) {
 		delay(1000);
 		Serial.println("ESP=nowifi");
 	}
 	Serial.println("ESP=wifiok");
 	Serial.print("ESP=debug=IP is: ");
+	//* Send local IP to the Uno for debug
 	Serial.println(WiFi.localIP());
 }
 
 void loop() {
-	if (Serial.available()) {
-		String received = Serial.readStringUntil('\n');
+	if (Serial.available()) { //? Serial buffer receives data
+		String received = Serial.readStringUntil('\n'); //? Frame as a string
 
-		if (received.startsWith("UNO=")) {
+		if (received.startsWith("UNO=")) { //? UNO= determines that it's the Uno that sent it
 			received = received.substring(5);
-			if (received.startsWith("data=")) {
+			//? Determine the command used :
+			if (received.startsWith("data=")) { //? data= determines that the uno sends in data
 				Serial.println("ESP=dataok");
-				int data[7];
+				int data[7]; //* Buffer for the numeric data
 
 				received = received.substring(6);
 				String substring;
@@ -65,15 +70,17 @@ void loop() {
 					substring = received.substring(0, index);
 					received = received.substring(index + 1);
 
-					data[i] = substring.toInt();
+					data[i] = substring.toInt(); //* convert substring to int to be stored in buffer
 				}
 
+				//! JSON SERIALIZATION
 				const size_t capacity = JSON_ARRAY_SIZE(7) + JSON_OBJECT_SIZE(3);
 				DynamicJsonDocument doc(capacity);
 
-				doc["sender"] = "espmaison";
-				doc["password"] = "password";
+				doc["sender"] = "espmaison"; //* Sender
+				doc["password"] = "password"; //* Password / passcode for the API
 
+				//* Values in an array
 				JsonArray values_numeric = doc.createNestedArray("values_numeric");
 				for (byte i = 0; i < 7; i++) {
 					values_numeric.add(data[i]);
@@ -81,18 +88,20 @@ void loop() {
 
 				String jsonOutput;
 				serializeJson(doc, jsonOutput);
-				sendHttpPost(jsonOutput);
+				sendHttpPost(jsonOutput); //? Send to the API using HTTP POST request.
 
 			}  // else if (received.startsWith("something")){} to add new commands
 		}
 	}
 }
 
+//? Send 'data' using HTTP POST to the defined API address. 
 int sendHttpPost(String data) {
 	client.begin(QAE_API_ADDRESS);
 	client.addHeader("Content-Type", "application/json");
 	int httpResponseCode = client.POST("aaaa");
 	client.end();
+	//? Debug to the Uno.
 	Serial.print("ESP=post=");
 	Serial.println(httpResponseCode);
 }
