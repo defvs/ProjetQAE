@@ -60,11 +60,11 @@ void loop() {
 			//? Determine the command used :
 			if (received.startsWith("data=")) { //? data= determines that the uno sends in data
 				Serial.println("ESP=dataok");
-				int data[7]; //* Buffer for the numeric data
+				int data[NUMERIC_VALUES_COUNT]; //* Buffer for the numeric data
 
 				received = received.substring(6);
 				String substring;
-				for (int i = 0; i < 7; i++) {
+				for (int i = 0; i < NUMERIC_VALUES_COUNT; i++) {
 					byte index = received.indexOf(',');
 
 					substring = received.substring(0, index);
@@ -74,15 +74,15 @@ void loop() {
 				}
 
 				//! JSON SERIALIZATION
-				const size_t capacity = JSON_ARRAY_SIZE(7) + JSON_OBJECT_SIZE(3);
+				const size_t capacity = JSON_ARRAY_SIZE(NUMERIC_VALUES_COUNT) + JSON_OBJECT_SIZE(3);
 				DynamicJsonDocument doc(capacity);
 
-				doc["sender"] = "espmaison"; //* Sender
-				doc["password"] = "password"; //* Password / passcode for the API
+				doc["sender"] = QAE_SENDER; //* Sender
+				doc["password"] = QAE_PASSWORD; //* Password / passcode for the API
 
 				//* Values in an array
 				JsonArray values_numeric = doc.createNestedArray("values_numeric");
-				for (byte i = 0; i < 7; i++) {
+				for (byte i = 0; i < NUMERIC_VALUES_COUNT; i++) {
 					values_numeric.add(data[i]);
 				}
 

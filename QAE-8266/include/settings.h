@@ -20,4 +20,8 @@
 #define QAE_SECURITY_TYPE "open"
 #define QAE_PASSWORD ""
 
+#define NUMERIC_VALUES_COUNT 7
+
 #define QAE_API_ADDRESS "http://192.168.43.10"
+#define QAE_SENDER "espmaison"
+#define QAE_PASSWORD "password"
