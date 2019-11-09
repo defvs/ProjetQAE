@@ -1,3 +1,22 @@
+//! ProjetQAE-8266 (c) Daniel THIRION & Antonin ESTELLE
+//! Licensed under LGPLv3. A copy of the license should have been given
+//! with the software. If not, find it online.
+//? -------------------------------------------------------------------
+//? File Name: main.cpp
+//? Author: Daniel THIRION
+//? Co-author: Antonin ESTELLE
+//? Supervision: M. CONTARET, IUT GEII Salon de Provence
+//? Last modified: 3/11/2019
+//? -------------------------------------------------------------------
+//* Description
+/*  Part of ProjetQAE : Using Arduino, gas sensors, a RPi and a web server,
+	Monitor and display the current air quality.
+	More info at https://github.com/defvs/ProjetQAE
+
+	This file is the ESP8266 part of the project. The Espressif module serves
+	as a wifi bridge to send data that comes through serial to the online API
+	via HTTP POST requests.
+*/
 #include "settings.h"
 
 #include <Arduino.h>
