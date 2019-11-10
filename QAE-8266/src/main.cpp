@@ -31,23 +31,23 @@ int sendHttpPost(String);
 void setup() {
 	//* Setup serial communication with the Uno
 	Serial.begin(WIFI_BAUDRATE);
-	Serial.println("ESP=poweron");
+	Serial.println(F("ESP=poweron"));
 
 	//* Start wifi connection to the AP
 	if (QAE_SECURITY_TYPE == "open")
 		WiFi.begin(QAE_SSID);
 	else
 		WiFi.begin(QAE_SSID, QAE_PASSWORD);
-	Serial.println("ESP=wificonnect");
+	Serial.println(F("ESP=wificonnect"));
 
 	//* Error out until connected to the AP
 	while (WiFi.status() != WL_CONNECTED) {
 		delay(1000);
-		Serial.println("ESP=nowifi");
+		Serial.println(F("ESP=nowifi"));
 	}
-	Serial.println("ESP=wifiok");
+	Serial.println(F("ESP=wifiok"));
 	if (DEBUG) {
-		Serial.print("ESP=debug=IP is: ");
+		Serial.print(F("ESP=debug=IP is: "));
 		//* Send local IP to the Uno for debug
 		Serial.println(WiFi.localIP());
 	}
@@ -66,7 +66,7 @@ void loop() {
 			received = received.substring(5);
 			//? Determine the command used :
 			if (received.startsWith("data=")) {  //? data= determines that the uno sends in data
-				Serial.println("ESP=dataok");
+				Serial.println(F("ESP=dataok"));
 				float data[NUMERIC_VALUES_COUNT + ANALOG_VALUES_COUNT];  //* Buffer for the data
 
 				received = received.substring(6);
@@ -109,7 +109,7 @@ void loop() {
 //? Send 'data' using HTTP POST to the defined API address.
 int sendHttpPost(String data) {
 	client.begin(QAE_API_ADDRESS);
-	client.addHeader("Content-Type", "application/json");
+	client.addHeader(F("Content-Type"), F("application/json"));
 	int httpResponseCode = client.POST("aaaa");
 	client.end();
 	//? Debug to the Uno.
