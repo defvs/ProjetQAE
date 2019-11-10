@@ -17,7 +17,7 @@
    These settings cannot be changed after the compilation and upload.
 */
 
-#define DEBUG true
+#define DEBUG false
 #define TIMEOUT 10
 
 //* Time in milliseconds for sensor update

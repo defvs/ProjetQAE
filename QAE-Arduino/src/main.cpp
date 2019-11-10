@@ -176,6 +176,8 @@ void loop() {
 			}
 			output.remove(output.lastIndexOf(','));
 
+			if (DEBUG)
+				Serial.println(output);
 			wifiSerial.println(output);
 		}
 

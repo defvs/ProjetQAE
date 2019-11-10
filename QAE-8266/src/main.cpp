@@ -25,7 +25,7 @@
 
 #include <ArduinoJson.h>
 
-HTTPClient client; //? Http client for POST requests
+HTTPClient client;  //? Http client for POST requests
 int sendHttpPost(String);
 
 void setup() {
@@ -46,26 +46,28 @@ void setup() {
 		Serial.println("ESP=nowifi");
 	}
 	Serial.println("ESP=wifiok");
-	Serial.print("ESP=debug=IP is: ");
-	//* Send local IP to the Uno for debug
-	Serial.println(WiFi.localIP());
+	if (DEBUG) {
+		Serial.print("ESP=debug=IP is: ");
+		//* Send local IP to the Uno for debug
+		Serial.println(WiFi.localIP());
+	}
 
-	while (1){
+	while (1) {
 		if (Serial.available())
 			if (Serial.readStringUntil('\n').equals("UNO=ok")) break;
 	}
 }
 
 void loop() {
-	if (Serial.available()) { //? Serial buffer receives data
-		String received = Serial.readStringUntil('\n'); //? Frame as a string
+	if (Serial.available()) {							 //? Serial buffer receives data
+		String received = Serial.readStringUntil('\n');  //? Frame as a string
 
-		if (received.startsWith("UNO=")) { //? UNO= determines that it's the Uno that sent it
+		if (received.startsWith("UNO=")) {  //? UNO= determines that it's the Uno that sent it
 			received = received.substring(5);
 			//? Determine the command used :
-			if (received.startsWith("data=")) { //? data= determines that the uno sends in data
+			if (received.startsWith("data=")) {  //? data= determines that the uno sends in data
 				Serial.println("ESP=dataok");
-				float data[NUMERIC_VALUES_COUNT + ANALOG_VALUES_COUNT]; //* Buffer for the data
+				float data[NUMERIC_VALUES_COUNT + ANALOG_VALUES_COUNT];  //* Buffer for the data
 
 				received = received.substring(6);
 				String substring;
@@ -75,15 +77,15 @@ void loop() {
 					substring = received.substring(0, index);
 					received = received.substring(index + 1);
 
-					data[i] = substring.toFloat(); //* convert substring to float to be stored in buffer
+					data[i] = substring.toFloat();  //* convert substring to float to be stored in buffer
 				}
 
 				//! JSON SERIALIZATION
 				const size_t capacity = JSON_ARRAY_SIZE(NUMERIC_VALUES_COUNT + ANALOG_VALUES_COUNT) + JSON_OBJECT_SIZE(4);
 				DynamicJsonDocument doc(capacity);
 
-				doc["sender"] = QAE_SENDER; //* Sender
-				doc["password"] = QAE_PASSWORD; //* Password / passcode for the API
+				doc["sender"] = QAE_SENDER;		 //* Sender
+				doc["password"] = QAE_PASSWORD;  //* Password / passcode for the API
 
 				//* Values in an array
 				JsonArray values_numeric = doc.createNestedArray("values_numeric");
@@ -97,14 +99,14 @@ void loop() {
 
 				String jsonOutput;
 				serializeJson(doc, jsonOutput);
-				sendHttpPost(jsonOutput); //? Send to the API using HTTP POST request.
+				sendHttpPost(jsonOutput);  //? Send to the API using HTTP POST request.
 
 			}  // else if (received.startsWith("something")){} to add new commands
 		}
 	}
 }
 
-//? Send 'data' using HTTP POST to the defined API address. 
+//? Send 'data' using HTTP POST to the defined API address.
 int sendHttpPost(String data) {
 	client.begin(QAE_API_ADDRESS);
 	client.addHeader("Content-Type", "application/json");

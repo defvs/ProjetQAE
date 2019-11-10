@@ -16,6 +16,8 @@
 	This file is the ESP8266 part of the project.
     Here are the settings for Wifi & API connection.
 */
+#define DEBUG false
+
 #define QAE_SSID "Honor 8A"
 #define QAE_SECURITY_TYPE "open"
 #define QAE_PASSWORD ""
