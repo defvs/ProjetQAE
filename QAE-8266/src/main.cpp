@@ -30,7 +30,7 @@ int sendHttpPost(String);
 
 void setup() {
 	//* Setup serial communication with the Uno
-	Serial.begin(115200);
+	Serial.begin(WIFI_BAUDRATE);
 	Serial.println("ESP=poweron");
 
 	//* Start wifi connection to the AP

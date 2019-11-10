@@ -17,6 +17,7 @@
     Here are the settings for Wifi & API connection.
 */
 #define DEBUG false
+#define WIFI_BAUDRATE 115200
 
 #define QAE_SSID "Honor 8A"
 #define QAE_SECURITY_TYPE "open"

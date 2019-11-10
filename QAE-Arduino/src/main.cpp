@@ -30,7 +30,7 @@ byte timer2 = 0;
 
 void setup() {
 	//* USB Serial
-	Serial.begin(9600);
+	Serial.begin(USB_BAUDRATE);
 	Serial.println("Starting...");
 
 	//* Gas sensor power on
@@ -38,7 +38,7 @@ void setup() {
 	gas.powerOn();
 
 	//* WIFI Serial
-	wifiSerial.begin(115200);
+	wifiSerial.begin(WIFI_BAUDRATE);
 }
 
 void loop() {
