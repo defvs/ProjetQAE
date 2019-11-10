@@ -106,6 +106,6 @@ int sendHttpPost(String data) {
 	int httpResponseCode = client.POST(data);
 	client.end();
 	//? Debug to the Uno.
-	Serial.print("ESP=post=");
+	Serial.print("ESP=debug=HTTP POST response ");
 	Serial.println(httpResponseCode);
 }
