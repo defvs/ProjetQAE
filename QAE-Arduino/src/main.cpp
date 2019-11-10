@@ -42,13 +42,6 @@ void setup() {
 
 	//* WIFI Serial
 	wifiSerial.begin(115200);
-
-	//* Wifi stack startup: server mode.
-	sendToWifi(wifiSerial, "AT+CWMODE=2", TIMEOUT, DEBUG);
-	sendToWifi(wifiSerial, "AT+CIFSR", TIMEOUT, DEBUG);
-	sendToWifi(wifiSerial, "AT+CIPMUX=1", TIMEOUT, DEBUG);
-	sendToWifi(wifiSerial, "AT+CIPSERVER=1,80", TIMEOUT, DEBUG);
-	sendToUno("Wifi Connection is running", TIMEOUT, DEBUG);
 }
 
 void loop() {
@@ -170,11 +163,9 @@ void loop() {
 
 			for (int i = 0; i < 7; i++) {					//* digital readings
 				dtostrf(ppmReadings[i], 10, 4, str);		//? Convert float to string
-				sendData(wifiSerial, str, TIMEOUT, DEBUG);  //? Send data
 			}
 			for (int i = 0; i < 1; i++) {					//* analog readings
 				dtostrf(voltageReadings[i], 10, 4, str);	//? Convert float to string
-				sendData(wifiSerial, str, TIMEOUT, DEBUG);  //? Send data
 			}
 		}
 
