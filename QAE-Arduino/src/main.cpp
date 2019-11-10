@@ -23,9 +23,6 @@
 #include <Wire.h>
 #include "MutichannelGasSensor.h"
 
-//! Custom libraries
-#include "wifi.h"
-
 SoftwareSerial wifiSerial = SoftwareSerial(2, 3);
 
 unsigned long timer1 = millis();
@@ -45,6 +42,14 @@ void setup() {
 }
 
 void loop() {
+	if (Serial.available()){
+		String received = wifiSerial.readStringUntil('\n');
+		if (received.equals(F("ESP=wifiok")))
+			wifiSerial.println("UNO=ok");
+		if (received.startsWith(F("ESP=debug=")))
+			Serial.println(received.substring(received.lastIndexOf('=')));
+	}
+
 	if (millis() - timer1 >= SENSOR_RATE) {  //? Every SENSOR_RATE milliseconds : Sensor update
 		float sensorReading;				 //? Sensor reading buffer
 		float ppmReadings[7];				 //? Digital readings buffer
@@ -159,13 +164,13 @@ void loop() {
 		if (timer2 >= WIFI_RATE_MULTIPLIER) {  //? Every WIFI_RATE_MULTIPLIER iterations
 			timer2 = 0;						   //? reset iteration count
 
-			char* str;  //? String buffer
+			String output = "";
 
 			for (int i = 0; i < 7; i++) {					//* digital readings
-				dtostrf(ppmReadings[i], 10, 4, str);		//? Convert float to string
+				
 			}
 			for (int i = 0; i < 1; i++) {					//* analog readings
-				dtostrf(voltageReadings[i], 10, 4, str);	//? Convert float to string
+
 			}
 		}
 

@@ -49,6 +49,11 @@ void setup() {
 	Serial.print("ESP=debug=IP is: ");
 	//* Send local IP to the Uno for debug
 	Serial.println(WiFi.localIP());
+
+	while (1){
+		if (Serial.available())
+			if (Serial.readStringUntil('\n').equals("UNO=ok")) break;
+	}
 }
 
 void loop() {
