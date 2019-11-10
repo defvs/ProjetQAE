@@ -164,14 +164,19 @@ void loop() {
 		if (timer2 >= WIFI_RATE_MULTIPLIER) {  //? Every WIFI_RATE_MULTIPLIER iterations
 			timer2 = 0;						   //? reset iteration count
 
-			String output = "";
+			String output = "UNO=data=";
 
 			for (int i = 0; i < 7; i++) {					//* digital readings
-				
+				output += String(ppmReadings[i]);
+				output += ",";
 			}
 			for (int i = 0; i < 1; i++) {					//* analog readings
-
+				output += String(voltageReadings[i]);
+				output += ",";
 			}
+			output.remove(output.lastIndexOf(','));
+
+			wifiSerial.println(output);
 		}
 
 		timer1 = millis();  //? Reset timer

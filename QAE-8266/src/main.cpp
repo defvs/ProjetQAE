@@ -65,7 +65,7 @@ void loop() {
 			//? Determine the command used :
 			if (received.startsWith("data=")) { //? data= determines that the uno sends in data
 				Serial.println("ESP=dataok");
-				int data[NUMERIC_VALUES_COUNT + ANALOG_VALUES_COUNT]; //* Buffer for the numeric data
+				float data[NUMERIC_VALUES_COUNT + ANALOG_VALUES_COUNT]; //* Buffer for the data
 
 				received = received.substring(6);
 				String substring;
@@ -75,7 +75,7 @@ void loop() {
 					substring = received.substring(0, index);
 					received = received.substring(index + 1);
 
-					data[i] = substring.toInt(); //* convert substring to int to be stored in buffer
+					data[i] = substring.toFloat(); //* convert substring to float to be stored in buffer
 				}
 
 				//! JSON SERIALIZATION
