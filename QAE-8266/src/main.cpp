@@ -110,9 +110,9 @@ void loop() {
 int sendHttpPost(String data) {
 	client.begin(QAE_API_ADDRESS);
 	client.addHeader(F("Content-Type"), F("application/json"));
-	int httpResponseCode = client.POST("aaaa");
+	int httpResponseCode = client.POST(data);
 	client.end();
 	//? Debug to the Uno.
-	Serial.print("ESP=post=");
+	Serial.print("ESP=debug=HTTP POST response ");
 	Serial.println(httpResponseCode);
 }
