@@ -65,11 +65,11 @@ void loop() {
 			//? Determine the command used :
 			if (received.startsWith("data=")) { //? data= determines that the uno sends in data
 				Serial.println("ESP=dataok");
-				int data[NUMERIC_VALUES_COUNT]; //* Buffer for the numeric data
+				int data[NUMERIC_VALUES_COUNT + ANALOG_VALUES_COUNT]; //* Buffer for the numeric data
 
 				received = received.substring(6);
 				String substring;
-				for (int i = 0; i < NUMERIC_VALUES_COUNT; i++) {
+				for (int i = 0; i < NUMERIC_VALUES_COUNT + ANALOG_VALUES_COUNT; i++) {
 					byte index = received.indexOf(',');
 
 					substring = received.substring(0, index);
@@ -79,7 +79,7 @@ void loop() {
 				}
 
 				//! JSON SERIALIZATION
-				const size_t capacity = JSON_ARRAY_SIZE(NUMERIC_VALUES_COUNT) + JSON_OBJECT_SIZE(3);
+				const size_t capacity = JSON_ARRAY_SIZE(NUMERIC_VALUES_COUNT + ANALOG_VALUES_COUNT) + JSON_OBJECT_SIZE(4);
 				DynamicJsonDocument doc(capacity);
 
 				doc["sender"] = QAE_SENDER; //* Sender
@@ -89,6 +89,10 @@ void loop() {
 				JsonArray values_numeric = doc.createNestedArray("values_numeric");
 				for (byte i = 0; i < NUMERIC_VALUES_COUNT; i++) {
 					values_numeric.add(data[i]);
+				}
+				JsonArray values_analog = doc.createNestedArray("values_analog");
+				for (byte i = NUMERIC_VALUES_COUNT; i < NUMERIC_VALUES_COUNT + ANALOG_VALUES_COUNT; i++) {
+					values_analog.add(data[i]);
 				}
 
 				String jsonOutput;
