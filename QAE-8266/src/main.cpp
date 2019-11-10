@@ -77,8 +77,8 @@ void loop() {
 				const size_t capacity = JSON_ARRAY_SIZE(NUMERIC_VALUES_COUNT + ANALOG_VALUES_COUNT) + JSON_OBJECT_SIZE(4);
 				DynamicJsonDocument doc(capacity);
 
-				doc["sender"] = QAE_SENDER; //* Sender
-				doc["password"] = QAE_PASSWORD; //* Password / passcode for the API
+				doc["sender"] = API_SENDER; //* Sender
+				doc["password"] = API_PASSWORD; //* Password / passcode for the API
 
 				//* Values in an array
 				JsonArray values_numeric = doc.createNestedArray("values_numeric");
@@ -101,7 +101,7 @@ void loop() {
 
 //? Send 'data' using HTTP POST to the defined API address. 
 int sendHttpPost(String data) {
-	client.begin(QAE_API_ADDRESS);
+	client.begin(API_ADDRESS);
 	client.addHeader("Content-Type", "application/json");
 	int httpResponseCode = client.POST(data);
 	client.end();

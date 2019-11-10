@@ -23,6 +23,6 @@
 #define NUMERIC_VALUES_COUNT 7
 #define ANALOG_VALUES_COUNT 2
 
-#define QAE_API_ADDRESS "http://192.168.43.10"
-#define QAE_SENDER "espmaison"
-#define QAE_PASSWORD "password"
+#define API_ADDRESS "http://192.168.43.10"
+#define API_SENDER "espmaison"
+#define API_PASSWORD "password"
