@@ -1,4 +1,24 @@
 <?php
+//! ProjetQAE-API (c) Daniel THIRION & Antonin ESTELLE
+//! Licensed under LGPLv3. A copy of the license should have been given
+//! with the software. If not, find it online.
+//? -------------------------------------------------------------------
+//? File Name: main.cpp
+//? Author: Daniel THIRION
+//? Co-author: Antonin ESTELLE
+//? Supervision: M. CONTARET, IUT GEII Salon de Provence
+//? Last modified: 3/11/2019
+//? -------------------------------------------------------------------
+//* Description
+// Part of ProjetQAE : Using Arduino, gas sensors, a RPi and a web server,
+// Monitor and display the current air quality.
+// More info at https://github.com/defvs/ProjetQAE
+//
+// This part of the project corresponds to the API running on a webserver.
+// It allows the IoT device to send in informations, and user webpages
+// to request them.
+// Information is stored in a MySQL database, present next to this file as "qae.sql".
+
 $date = date('Y-m-d H:i:s');                                            //! Date et heure actuelle
 $sql = mysqli_connect('localhost', 'root', '', 'qae', '3306');          //! Connexion à la base de données
 
