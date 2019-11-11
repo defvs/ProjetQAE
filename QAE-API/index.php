@@ -41,9 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
             $val = $json->values_numeric[$i];
             $str = "UPDATE data_numeric SET value = $val, last_update = '$date' WHERE data_numeric.index = $a";
 
-            if (!mysqli_query($sql, $str)){
-                $error = true;
-            }
+            $error = !mysqli_query($sql, $str)
         }
         for ($i = 0; $i < 2; $i++) { 
             if ($json->values_analog[$i] == -1) {
@@ -53,9 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
             $val = $json->values_analog[$i];
             $str = "UPDATE data_analog SET value = $val, last_update = '$date' WHERE data_analog.index = $a";
 
-            if (!mysqli_query($sql, $str)){
-                $error = true;
-            }
+            $error = !mysqli_query($sql, $str)
         }
         if ($error >= 1) {
             http_response_code(500);
@@ -89,6 +85,7 @@ else if ($_SERVER['REQUEST_METHOD'] === 'GET'){
     if ($result->num_rows === 2){
         $data -> values_analog = $result->fetch_all();
     }
+    mysqli_free_result($result);
     else{
         http_responde_code(500);
         print "erreur bdd";
