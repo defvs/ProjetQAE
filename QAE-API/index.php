@@ -6,6 +6,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
     $data = file_get_contents('php://input');                               //! Récupération de la trame
     $json = json_decode($data);                                             //! Traduction de la trame reçue
 
+    $result = mysqli_query("SELECT * FROM data_numeric");
+    $values_numeric_count = mysqli_num_rows($result) - 1;
+    mysqli_free_result($result);
+    $result = mysqli_query("SELECT * FROM data_analog");
+    $values_analog_count = mysqli_num_rows($result) - 1;
+    mysqli_free_result($result);
+
     if (!isset($json->password)){               //! Vérification de la présence mot de passe
         http_response_code(400);
         echo "mot de passe non envoyé";
@@ -18,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
         http_response_code(400);
         echo "values_numeric non envoyé";
     }
-    else if (count($json->values_numeric) != 7){         //! Vérification du nombre de valeurs numériques reçue
+    else if (count($json->values_numeric) != $values_numeric_count){         //! Vérification du nombre de valeurs numériques reçue
         http_response_code(400);
         echo "trop / pas assez de valeurs";
     }
@@ -26,14 +33,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){
         http_response_code(400);
         echo "values_analog non envoyé";
     }
-    else if (count($json->values_analog) != 2){         //! Vérification du nombre de valeurs analogiques reçue
+    else if (count($json->values_analog) != $values_analog_count){         //! Vérification du nombre de valeurs analogiques reçue
         http_response_code(400);
         echo "trop / pas assez de valeurs";
     }
 
     else if($json->password == "password"){     //! Vérification de la bonne orthographe du mot de passe
         $error = false;
-        for ($i = 0; $i < 7; $i++) { 
+        for ($i = 0; $i < $values_numeric_count; $i++) { 
             if ($json->values_numeric[$i] == -1) {
                 continue;
             }
