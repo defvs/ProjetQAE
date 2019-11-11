@@ -19,108 +19,94 @@
 // to request them.
 // Information is stored in a MySQL database, present next to this file as "qae.sql".
 
-$date = date('Y-m-d H:i:s');                                            //! Date et heure actuelle
-$sql = mysqli_connect('localhost', 'root', '', 'qae', '3306');          //! Connexion à la base de données
+$date = date('Y-m-d H:i:s');                                            //? Current date and time formatted for MySQL
+$sql = mysqli_connect('localhost', 'root', '', 'qae', '3306');          //? Connection to the MySQL database.
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST'){
-    $data = file_get_contents('php://input');                               //! Récupération de la trame
-    $json = json_decode($data);                                             //! Traduction de la trame reçue
+if ($_SERVER['REQUEST_METHOD'] === 'POST'){ //! POST REQUEST (sending in data)
+    $data = file_get_contents('php://input');                               //? Retreive file sent via POST request
+    $json = json_decode($data);                                             //? Deserialization to object from JSON
 
+    //* Retreival of row counts from database
     $result = mysqli_query("SELECT * FROM data_numeric");
-    $values_numeric_count = mysqli_num_rows($result) - 1;
+    $values_numeric_count = mysqli_num_rows($result);
     mysqli_free_result($result);
     $result = mysqli_query("SELECT * FROM data_analog");
-    $values_analog_count = mysqli_num_rows($result) - 1;
+    $values_analog_count = mysqli_num_rows($result);
     mysqli_free_result($result);
 
-    if (!isset($json->password)){               //! Vérification de la présence mot de passe
+    if (!isset($json->password)){               //? Password presence check
         http_response_code(400);
-        echo "mot de passe non envoyé";
-    }
-    else if (!isset($json->sender)) {           //! Vérification de la présence du nom de l'envoyeur
+        echo "Password missing";
+    }else if (!isset($json->sender)) {           //? Sender name presence check
         http_response_code(400);
-        echo "sender non envoyé";
-    }
-    else if (!isset($json->values_numeric)){            //! Vérification des valeurs numériques
+        echo "Sender missing";
+    }else if (!isset($json->values_numeric)){            //? Numerical values presence check
         http_response_code(400);
-        echo "values_numeric non envoyé";
-    }
-    else if (count($json->values_numeric) != $values_numeric_count){         //! Vérification du nombre de valeurs numériques reçue
+        echo "values_numeric missing";
+    }else if (count($json->values_numeric) != $values_numeric_count){         //? Numerical values count check
         http_response_code(400);
-        echo "trop / pas assez de valeurs";
-    }
-    else if (!isset($json->values_analog)){            //! Vérification des valeurs analogiques
+        echo "Wrong values_numeric count";
+    }else if (!isset($json->values_analog)){            //? Analog values presence check
         http_response_code(400);
-        echo "values_analog non envoyé";
-    }
-    else if (count($json->values_analog) != $values_analog_count){         //! Vérification du nombre de valeurs analogiques reçue
+        echo "values_analog missing";
+    }else if (count($json->values_analog) != $values_analog_count){         //? Analog values count check
         http_response_code(400);
-        echo "trop / pas assez de valeurs";
+        echo "Wrong values_analog count";
     }
 
-    else if($json->password == "password"){     //! Vérification de la bonne orthographe du mot de passe
+    else if($json->password == "password"){     //? Password correspondence check
         $error = false;
         for ($i = 0; $i < $values_numeric_count; $i++) { 
-            if ($json->values_numeric[$i] == -1) {
+            if ($json->values_numeric[$i] == -1) { //? Don't update if '-1'
                 continue;
             }
             $a = $i + 1;
             $val = $json->values_numeric[$i];
-            $str = "UPDATE data_numeric SET value = $val, last_update = '$date' WHERE data_numeric.index = $a";
 
+            //? SQL querry
+            $str = "UPDATE data_numeric SET value = $val, last_update = '$date' WHERE data_numeric.index = $a";
             $error = !mysqli_query($sql, $str)
         }
         for ($i = 0; $i < 2; $i++) { 
-            if ($json->values_analog[$i] == -1) {
+            if ($json->values_analog[$i] == -1) { //? Don't update if '-1'
                 continue;
             }
             $a = $i + 1;
             $val = $json->values_analog[$i];
-            $str = "UPDATE data_analog SET value = $val, last_update = '$date' WHERE data_analog.index = $a";
 
+            //? SQL querry
+            $str = "UPDATE data_analog SET value = $val, last_update = '$date' WHERE data_analog.index = $a";
             $error = !mysqli_query($sql, $str)
         }
         if ($error >= 1) {
             http_response_code(500);
-            echo "erreur bdd";
-        }
-        else{
+            echo "Database error";
+        }else{
             http_response_code(200);
             echo "OK";
         }
-    }
-    else{
+    }else{
         http_response_code(400);
-        echo "mauvais password";  
+        echo "Wrong password";  
     }
-}
-else if ($_SERVER['REQUEST_METHOD'] === 'GET'){
-    $data = new \stdClass();
+}else if ($_SERVER['REQUEST_METHOD'] === 'GET'){ //! GET REQUEST (requesting data)
+    $data = new \stdClass(); //* Data object which will be converted to JSON
+
+    //* SQL queries for numeric and analog values
     $str = "SELECT name, value, last_update FROM data_numeric WHERE 1";
     $result = mysqli_query($sql, $str);
-    if ($result->num_rows === 7){
-        $data -> values_numeric = $result->fetch_all();  
-    }
-    else{
-        http_responde_code(500);
-        print "erreur bdd";
-        exit(0);
-    }
+    $data -> values_numeric = $result->fetch_all();
 
     $str = "SELECT name, value, last_update FROM data_analog WHERE 1";
     $result = mysqli_query($sql, $str);
-    if ($result->num_rows === 2){
-        $data -> values_analog = $result->fetch_all();
-    }
+    $data -> values_analog = $result->fetch_all();
     mysqli_free_result($result);
-    else{
-        http_responde_code(500);
-        print "erreur bdd";
-        exit(0);
-    }
+    
+    //? JSON serialization and transmission
     header('Content-Type: application/json');
     http_response_code(200);
-    echo json_encode($data);   
+    echo json_encode($data);
 }
+//? Close database connection
 mysqli_close($sql);
 ?>
