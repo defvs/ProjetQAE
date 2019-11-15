@@ -3,7 +3,7 @@
 //! Licensed under LGPLv3. A copy of the license should have been given
 //! with the software. If not, find it online.
 //? -------------------------------------------------------------------
-//? File Name: main.cpp
+//? File Name: index.php
 //? Author: Daniel THIRION
 //? Co-author: Antonin ESTELLE
 //? Supervision: M. CONTARET, IUT GEII Salon de Provence
