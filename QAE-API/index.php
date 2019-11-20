@@ -20,17 +20,17 @@
 // Information is stored in a MySQL database, present next to this file as "qae.sql".
 
 $date = date('Y-m-d H:i:s');                                            //? Current date and time formatted for MySQL
-$sql = mysqli_connect('localhost', 'root', '', 'qae', '3306');          //? Connection to the MySQL database.
+$sql = mysqli_connect('localhost', 'root', 'password', 'qae', '3306');          //? Connection to the MySQL database.
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST'){ //! POST REQUEST (sending in data)
     $data = file_get_contents('php://input');                               //? Retreive file sent via POST request
     $json = json_decode($data);                                             //? Deserialization to object from JSON
 
     //* Retreival of row counts from database
-    $result = mysqli_query("SELECT * FROM data_numeric");
+    $result = mysqli_query($sql, "SELECT * FROM data_numeric");
     $values_numeric_count = mysqli_num_rows($result);
     mysqli_free_result($result);
-    $result = mysqli_query("SELECT * FROM data_analog");
+    $result = mysqli_query($sql, "SELECT * FROM data_analog");
     $values_analog_count = mysqli_num_rows($result);
     mysqli_free_result($result);
 
@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){ //! POST REQUEST (sending in data)
 
             //? SQL querry
             $str = "UPDATE data_numeric SET value = $val, last_update = '$date' WHERE data_numeric.index = $a";
-            $error = !mysqli_query($sql, $str)
+            $error = !mysqli_query($sql, $str);
         }
         for ($i = 0; $i < 2; $i++) { 
             if ($json->values_analog[$i] == -1) { //? Don't update if '-1'
@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){ //! POST REQUEST (sending in data)
 
             //? SQL querry
             $str = "UPDATE data_analog SET value = $val, last_update = '$date' WHERE data_analog.index = $a";
-            $error = !mysqli_query($sql, $str)
+            $error = !mysqli_query($sql, $str);
         }
         if ($error >= 1) {
             http_response_code(500);
@@ -109,4 +109,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){ //! POST REQUEST (sending in data)
 }
 //? Close database connection
 mysqli_close($sql);
-?>
