@@ -54,8 +54,10 @@ void setup() {
 
 	while (1) {
 		if (Serial.available())
-			if (Serial.readStringUntil('\n').equals("UNO=ok")) break;
+			if (Serial.readStringUntil('\n').startsWith("UNO=ok")) break;
 	}
+
+	Serial.println(F("ESP=ready"));
 }
 
 void loop() {
