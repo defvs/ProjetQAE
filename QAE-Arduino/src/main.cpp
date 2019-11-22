@@ -42,12 +42,14 @@ void setup() {
 }
 
 void loop() {
-	if (Serial.available()){
+	if (wifiSerial.available()){
 		String received = wifiSerial.readStringUntil('\n');
-		if (received.equals(F("ESP=wifiok")))
+		if (received.startsWith(F("ESP=wifiok"))){
 			wifiSerial.println("UNO=ok");
+			if (DEBUG) Serial.println("Uno connected to ESP");
+		}
 		if (received.startsWith(F("ESP=debug=")))
-			Serial.println(received.substring(received.lastIndexOf('=')));
+			Serial.println(received.substring(received.lastIndexOf('=') + 1));
 	}
 
 	if (millis() - timer1 >= SENSOR_RATE) {  //? Every SENSOR_RATE milliseconds : Sensor update
@@ -62,82 +64,82 @@ void loop() {
 			Serial.println(F("Multichannel gas sensor readings"));
 			Serial.print(F("NH3= "));
 			if (sensorReading >= 0)
-				Serial.print(sensorReading / 10e3);
+				Serial.print(sensorReading);
 			else
 				Serial.print(F("invalid"));
-			Serial.println(F(" %"));
+			Serial.println(F(" ppm"));
 		}
 
 		//* CO Digital Readings (in PPM)
 		sensorReading = gas.measure_CO();
 		ppmReadings[1] = sensorReading;
 		if (DEBUG) {
-			Serial.print("CO= ");
+			Serial.print(F("CO= "));
 			if (sensorReading >= 0)
-				Serial.print(sensorReading / 10e3);
+				Serial.print(sensorReading);
 			else
-				Serial.print("invalid");
-			Serial.println(" %");
+				Serial.print(F("invalid"));
+			Serial.println(F(" ppm"));
 		}
 
 		//* NO2 Digital Readings (in PPM)
 		sensorReading = gas.measure_NO2();
 		if (DEBUG) {
 			ppmReadings[2] = sensorReading;
-			Serial.print("NO2= ");
+			Serial.print(F("NO2= "));
 			if (sensorReading >= 0)
-				Serial.print(sensorReading / 10e3);
+				Serial.print(sensorReading);
 			else
-				Serial.print("invalid");
-			Serial.println(" %");
+				Serial.print(F("invalid"));
+			Serial.println(F(" ppm"));
 		}
 
 		//* C3H8 Digital Readings (in PPM)
 		sensorReading = gas.measure_C3H8();
 		ppmReadings[3] = sensorReading;
 		if (DEBUG) {
-			Serial.print("C3H8= ");
+			Serial.print(F("C3H8= "));
 			if (sensorReading >= 0)
-				Serial.print(sensorReading / 10e3);
+				Serial.print(sensorReading);
 			else
-				Serial.print("invalid");
-			Serial.println(" %");
+				Serial.print(F("invalid"));
+			Serial.println(F(" ppm"));
 		}
 
 		//* C4H10 Digital Readings (in PPM)
 		sensorReading = gas.measure_C4H10();
 		ppmReadings[4] = sensorReading;
 		if (DEBUG) {
-			Serial.print("C4H10= ");
+			Serial.print(F("C4H10= "));
 			if (sensorReading >= 0)
-				Serial.print(sensorReading / 10e3);
+				Serial.print(sensorReading);
 			else
-				Serial.print("invalid");
-			Serial.println(" %");
+				Serial.print(F("invalid"));
+			Serial.println(F(" ppm"));
 		}
 
 		//* CH4 Digital Readings (in PPM)
 		sensorReading = gas.measure_CH4();
 		ppmReadings[5] = sensorReading;
 		if (DEBUG) {
-			Serial.print("CH4= ");
+			Serial.print(F("CH4= "));
 			if (sensorReading >= 0)
-				Serial.print(sensorReading / 10e3);
+				Serial.print(sensorReading);
 			else
-				Serial.print("invalid");
-			Serial.println(" %");
+				Serial.print(F("invalid"));
+			Serial.println(F(" ppm"));
 		}
 
 		//* H2 Digital Readings (in PPM)
 		sensorReading = gas.measure_H2();
 		ppmReadings[6] = sensorReading;
 		if (DEBUG) {
-			Serial.print("H2= ");
+			Serial.print(F("H2= "));
 			if (sensorReading >= 0)
-				Serial.print(sensorReading / 10e3);
+				Serial.print(sensorReading);
 			else
-				Serial.print("invalid");
-			Serial.println(" %");
+				Serial.print(F("invalid"));
+			Serial.println(F(" ppm"));
 		}
 
 		//* MQ2 (Gas Leakage) sensor
@@ -170,11 +172,10 @@ void loop() {
 				output += String(ppmReadings[i]);
 				output += ",";
 			}
-			for (int i = 0; i < 1; i++) {					//* analog readings
+			for (int i = 0; i < 2; i++) {					//* analog readings
 				output += String(voltageReadings[i]);
 				output += ",";
 			}
-			output.remove(output.lastIndexOf(','));
 
 			if (DEBUG)
 				Serial.println(output);

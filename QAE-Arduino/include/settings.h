@@ -17,7 +17,7 @@
    These settings cannot be changed after the compilation and upload.
 */
 
-#define DEBUG false
+#define DEBUG true
 #define USB_BAUDRATE 9600
 #define WIFI_BAUDRATE 115200
 
