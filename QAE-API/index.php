@@ -20,7 +20,7 @@
 // Information is stored in a MySQL database, present next to this file as "qae.sql".
 
 $date = date('Y-m-d H:i:s');                                            //? Current date and time formatted for MySQL
-$sql = mysqli_connect('localhost', 'root', 'password', 'qae', '3306');          //? Connection to the MySQL database.
+$sql = mysqli_connect('localhost', 'root', 'password', 'qae2', '3306');          //? Connection to the MySQL database.
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST'){ //! POST REQUEST (sending in data)
     $data = file_get_contents('php://input');                               //? Retreive file sent via POST request
@@ -28,10 +28,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){ //! POST REQUEST (sending in data)
 
     //* Retreival of row counts from database
     $result = mysqli_query($sql, "SELECT * FROM data_numeric");
-    $values_numeric_count = mysqli_num_rows($result);
+    $values_numeric_count = mysqli_field_count($sql) - 2;
     mysqli_free_result($result);
     $result = mysqli_query($sql, "SELECT * FROM data_analog");
-    $values_analog_count = mysqli_num_rows($result);
+    $values_analog_count = mysqli_field_count($sql) - 2;
     mysqli_free_result($result);
 
     if (!isset($json->password)){               //? Password presence check
@@ -56,28 +56,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){ //! POST REQUEST (sending in data)
 
     else if($json->password == "password"){     //? Password correspondence check
         $error = false;
-        for ($i = 0; $i < $values_numeric_count; $i++) { 
-            if ($json->values_numeric[$i] == -1) { //? Don't update if '-1'
-                continue;
-            }
-            $a = $i + 1;
-            $val = $json->values_numeric[$i];
 
-            //? SQL querry
-            $str = "UPDATE data_numeric SET value = $val, last_update = '$date' WHERE data_numeric.index = $a";
-            $error = !mysqli_query($sql, $str);
-        }
-        for ($i = 0; $i < 2; $i++) { 
-            if ($json->values_analog[$i] == -1) { //? Don't update if '-1'
-                continue;
-            }
-            $a = $i + 1;
-            $val = $json->values_analog[$i];
+        $flat = implode(",", $json->values_numeric);
+        $querry = "INSERT INTO data_numeric VALUES (0,$flat,'$date');";
+        $error = !mysqli_query($sql, $querry);
 
-            //? SQL querry
-            $str = "UPDATE data_analog SET value = $val, last_update = '$date' WHERE data_analog.index = $a";
-            $error = !mysqli_query($sql, $str);
-        }
+        $flat = implode(",", $json->values_analog);
+        $querry = "INSERT INTO data_analog VALUES (0,$flat,'$date');";
+        $error = !mysqli_query($sql, $querry);
+
         if ($error >= 1) {
             http_response_code(500);
             echo "Database error";
@@ -93,12 +80,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){ //! POST REQUEST (sending in data)
     $data = new \stdClass(); //* Data object which will be converted to JSON
 
     //* SQL queries for numeric and analog values
-    $str = "SELECT name, value, last_update FROM data_numeric WHERE 1";
-    $result = mysqli_query($sql, $str);
+    $querry = "SELECT name, value, last_update FROM data_numeric WHERE 1";
+    $result = mysqli_query($sql, $querry);
     $data -> values_numeric = $result->fetch_all();
 
-    $str = "SELECT name, value, last_update FROM data_analog WHERE 1";
-    $result = mysqli_query($sql, $str);
+    $querry = "SELECT name, value, last_update FROM data_analog WHERE 1";
+    $result = mysqli_query($sql, $querry);
     $data -> values_analog = $result->fetch_all();
     mysqli_free_result($result);
     
