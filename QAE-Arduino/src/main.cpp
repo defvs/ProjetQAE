@@ -23,7 +23,7 @@
 #include <Wire.h>
 #include "MutichannelGasSensor.h"
 
-SoftwareSerial wifiSerial = SoftwareSerial(2, 3);
+SoftwareSerial wifiSerial = SoftwareSerial(2, 3); // RX, TX
 
 unsigned long timer1 = millis();
 byte timer2 = 0;
