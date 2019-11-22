@@ -65,13 +65,16 @@ void loop() {
 		String received = Serial.readStringUntil('\n');  //? Frame as a string
 
 		if (received.startsWith("UNO=")) {  //? UNO= determines that it's the Uno that sent it
-			received = received.substring(5);
+			received = received.substring(4);
+			if (DEBUG) Serial.println(received);
 			//? Determine the command used :
 			if (received.startsWith("data=")) {  //? data= determines that the uno sends in data
 				Serial.println(F("ESP=dataok"));
 				float data[NUMERIC_VALUES_COUNT + ANALOG_VALUES_COUNT];  //* Buffer for the data
 
-				received = received.substring(6);
+				received = received.substring(5);
+				if (DEBUG) Serial.println(received);
+				
 				String substring;
 				for (int i = 0; i < NUMERIC_VALUES_COUNT + ANALOG_VALUES_COUNT; i++) {
 					byte index = received.indexOf(',');
@@ -80,6 +83,7 @@ void loop() {
 					received = received.substring(index + 1);
 
 					data[i] = substring.toFloat();  //* convert substring to float to be stored in buffer
+					if (DEBUG) Serial.println(data[i]);
 				}
 
 				//! JSON SERIALIZATION
@@ -103,6 +107,11 @@ void loop() {
 				serializeJson(doc, jsonOutput);
 				sendHttpPost(jsonOutput);  //? Send to the API using HTTP POST request.
 
+			}else if (received.startsWith("ping")){
+				Serial.println("ESP=pong");
+			}else if (received.startsWith("network")){
+				Serial.print("ESP=network=");
+				Serial.println(WiFi.localIP());
 			}  // else if (received.startsWith("something")){} to add new commands
 		}
 	}
