@@ -18,7 +18,8 @@
 */
 
 #define DEBUG true
-#define TIMEOUT 10
+#define USB_BAUDRATE 9600
+#define WIFI_BAUDRATE 115200
 
 //* Time in milliseconds for sensor update
 #define SENSOR_RATE 2000

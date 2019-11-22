@@ -16,13 +16,16 @@
 	This file is the ESP8266 part of the project.
     Here are the settings for Wifi & API connection.
 */
-#define QAE_SSID "Honor 8A"
+#define DEBUG true
+#define WIFI_BAUDRATE 115200
+
+#define QAE_SSID "rpi"
 #define QAE_SECURITY_TYPE "open"
 #define QAE_PASSWORD ""
 
 #define NUMERIC_VALUES_COUNT 7
 #define ANALOG_VALUES_COUNT 2
 
-#define API_ADDRESS "http://192.168.43.10"
+#define API_ADDRESS "http://192.168.43.58"
 #define API_SENDER "espmaison"
 #define API_PASSWORD "password"
