@@ -58,12 +58,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){ //! POST REQUEST (sending in data)
         $error = false;
 
         $flat = implode(",", $json->values_numeric);
-        $querry = "INSERT INTO data_numeric VALUES (0,$flat,'$date');";
-        $error = !mysqli_query($sql, $querry);
+        $query = "INSERT INTO data_numeric VALUES (0,$flat,'$date');";
+        $error = !mysqli_query($sql, $query);
 
         $flat = implode(",", $json->values_analog);
-        $querry = "INSERT INTO data_analog VALUES (0,$flat,'$date');";
-        $error = !mysqli_query($sql, $querry);
+        $query = "INSERT INTO data_analog VALUES (0,$flat,'$date');";
+        $error = !mysqli_query($sql, $query);
 
         if ($error >= 1) {
             http_response_code(500);
@@ -77,22 +77,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'){ //! POST REQUEST (sending in data)
         echo "Wrong password";  
     }
 }else if ($_SERVER['REQUEST_METHOD'] === 'GET'){ //! GET REQUEST (requesting data)
+    if (isset($_GET['limit'])){
+        $limit = $_GET['limit'];
+    } else {
+        $limit = 1;
+    }
     $data = new \stdClass(); //* Data object which will be converted to JSON
 
     //* SQL queries for numeric and analog values
-    $querry = "SELECT name, value, last_update FROM data_numeric WHERE 1";
-    $result = mysqli_query($sql, $querry);
-    $data -> values_numeric = $result->fetch_all();
+    $query = "SELECT * FROM data_numeric ORDER BY id DESC LIMIT $limit";
+    $result = mysqli_query($sql, $query);
 
-    $querry = "SELECT name, value, last_update FROM data_analog WHERE 1";
-    $result = mysqli_query($sql, $querry);
-    $data -> values_analog = $result->fetch_all();
+    $i = 0;
+    while ($row = mysqli_fetch_assoc($result)){
+        unset($row['id']);
+        $data->$i->numeric = $row;
+        $i++;
+    }
+
+    mysqli_free_result($result);
+
+
+    $query = "SELECT * FROM data_analog ORDER BY id DESC LIMIT $limit";
+    $result = mysqli_query($sql, $query);
+    
+    $i = 0;
+    while ($row = mysqli_fetch_assoc($result)){
+        unset($row['id']);
+        $data->$i->analog = $row;
+        $i++;
+    }
+
     mysqli_free_result($result);
     
     //? JSON serialization and transmission
     header('Content-Type: application/json');
     http_response_code(200);
     echo json_encode($data);
-}
+}   
 //? Close database connection
 mysqli_close($sql);
