@@ -1,15 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 4.8.5
+-- version 4.6.6deb5
 -- https://www.phpmyadmin.net/
 --
--- Hôte : 127.0.0.1:3306
--- Généré le :  sam. 09 nov. 2019 à 15:53
--- Version du serveur :  5.7.26
--- Version de PHP :  7.2.18
+-- Client :  localhost:3306
+-- Généré le :  Mar 26 Novembre 2019 à 09:22
+-- Version du serveur :  10.3.17-MariaDB-0+deb10u1
+-- Version de PHP :  7.3.11-1~deb10u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
-START TRANSACTION;
 SET time_zone = "+00:00";
 
 
@@ -19,7 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de données :  `qae`
+-- Base de données :  `qae2`
 --
 
 -- --------------------------------------------------------
@@ -28,22 +26,12 @@ SET time_zone = "+00:00";
 -- Structure de la table `data_analog`
 --
 
-DROP TABLE IF EXISTS `data_analog`;
-CREATE TABLE IF NOT EXISTS `data_analog` (
-  `index` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Index',
-  `name` tinytext COLLATE utf8_unicode_ci COMMENT 'Nom du champ',
-  `value` float NOT NULL DEFAULT '0' COMMENT 'Valeur',
-  `last_update` timestamp NULL DEFAULT NULL COMMENT 'Temps de dernière modification',
-  PRIMARY KEY (`index`)
-) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Déchargement des données de la table `data_analog`
---
-
-INSERT INTO `data_analog` (`index`, `name`, `value`, `last_update`) VALUES
-(1, 'HCHO', 0, '2019-11-08 09:41:46'),
-(2, 'MQ2', 0, '2019-11-08 09:41:46');
+CREATE TABLE `data_analog` (
+  `id` int(11) NOT NULL,
+  `HCHO` int(11) NOT NULL,
+  `MQ2` int(11) NOT NULL,
+  `time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -51,29 +39,49 @@ INSERT INTO `data_analog` (`index`, `name`, `value`, `last_update`) VALUES
 -- Structure de la table `data_numeric`
 --
 
-DROP TABLE IF EXISTS `data_numeric`;
-CREATE TABLE IF NOT EXISTS `data_numeric` (
-  `index` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Index',
-  `name` tinytext COLLATE utf8_unicode_ci COMMENT 'Nom du champ',
-  `value` float NOT NULL DEFAULT '0' COMMENT 'Valeur',
-  `last_update` timestamp NULL DEFAULT NULL COMMENT 'Temps de dernière modification',
-  PRIMARY KEY (`index`)
-) ENGINE=MyISAM AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `data_numeric` (
+  `id` int(11) NOT NULL,
+  `NH3` int(11) NOT NULL,
+  `CO` int(11) NOT NULL,
+  `NO2` int(11) NOT NULL,
+  `C3H8` int(11) NOT NULL,
+  `C4H10` int(11) NOT NULL,
+  `CH4` int(11) NOT NULL,
+  `H2` int(11) NOT NULL,
+  `time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Déchargement des données de la table `data_numeric`
+-- Index pour les tables exportées
 --
 
-INSERT INTO `data_numeric` (`index`, `name`, `value`, `last_update`) VALUES
-(1, 'NH3', 0, '2019-11-08 08:46:59'),
-(2, 'CO', 0, '2019-11-08 09:41:46'),
-(3, 'NO2', 0, '2019-11-08 09:41:46'),
-(4, 'C3H8', 0, '2019-11-08 09:41:46'),
-(5, 'C4H10', 0, '2019-11-08 09:41:46'),
-(6, 'CH4', 0, '2019-11-08 09:41:46'),
-(7, 'H2', 0, '2019-11-08 09:41:46');
-COMMIT;
+--
+-- Index pour la table `data_analog`
+--
+ALTER TABLE `data_analog`
+  ADD PRIMARY KEY (`id`);
 
+--
+-- Index pour la table `data_numeric`
+--
+ALTER TABLE `data_numeric`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `id` (`id`);
+
+--
+-- AUTO_INCREMENT pour les tables exportées
+--
+
+--
+-- AUTO_INCREMENT pour la table `data_analog`
+--
+ALTER TABLE `data_analog`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT pour la table `data_numeric`
+--
+ALTER TABLE `data_numeric`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
