@@ -19,26 +19,33 @@
 
 //! Arduino libraries
 #include <Arduino.h>
-#include <SoftwareSerial.h>
 #include <Wire.h>
 #include "MutichannelGasSensor.h"
 
-SoftwareSerial wifiSerial = SoftwareSerial(2, 3); // RX, TX
+#ifdef WIFI_BAUDRATE
+	#include <SoftwareSerial.h>
+	SoftwareSerial wifiSerial = SoftwareSerial(2, 3); // RX, TX
+#else
+	#define wifiSerial Serial
+#endif
 
 unsigned long timer1 = millis();
-byte timer2 = 0;
+
+uint8_t analogPins[] = ANALOG_PINS;
 
 void setup() {
 	//* USB Serial
-	Serial.begin(USB_BAUDRATE);
+	Serial.begin(HW_BAUDRATE);
 	Serial.println("Starting...");
 
 	//* Gas sensor power on
 	gas.begin();
 	gas.powerOn();
 
-	//* WIFI Serial
-	wifiSerial.begin(WIFI_BAUDRATE);
+	#ifdef WIFI_BAUDRATE
+		//* WIFI Serial
+		wifiSerial.begin(WIFI_BAUDRATE);
+	#endif
 }
 
 void loop() {
@@ -55,7 +62,7 @@ void loop() {
 	if (millis() - timer1 >= SENSOR_RATE) {  //? Every SENSOR_RATE milliseconds : Sensor update
 		float sensorReading;				 //? Sensor reading buffer
 		float ppmReadings[7];				 //? Digital readings buffer
-		float voltageReadings[2];			 //? Voltage readings buffer
+		float voltageReadings[ANALOG_VALUES_COUNT];			 //? Voltage readings buffer
 
 		//* NH3 Digital Readings (in PPM)
 		sensorReading = gas.measure_NH3();
@@ -84,38 +91,29 @@ void loop() {
 		sensorReading = gas.measure_H2();
 		ppmReadings[6] = sensorReading;
 
-		//* MQ2 (Gas Leakage) sensor
-		sensorReading = analogRead(A0) / 1024 * 5.0;
-		voltageReadings[0] = sensorReading;
-
-		//* HCHO sensor
-		sensorReading = analogRead(A1) / 1024 * 5.0;
-		voltageReadings[1] = sensorReading;
+		for (byte i = 0; i < ANALOG_VALUES_COUNT; i++)
+		{
+			sensorReading = analogRead(analogPins[i]) / 1024 * 5.0;
+			voltageReadings[i] = sensorReading;
+		}
 
 		//! Wifi Transmission
-		timer2++;
-		if (timer2 >= WIFI_RATE_MULTIPLIER) {  //? Every WIFI_RATE_MULTIPLIER iterations
-			timer2 = 0;						   //? reset iteration count
+		String output = "UNO=data=";
 
-			String output = "UNO=data=";
-
-			for (int i = 0; i < 7; i++) {					//* digital readings
-			if (ppmReadings[i] > 0 &&  ppmReadings[i] < 1000000) {
+		for (int i = 0; i < 7; i++) {					//* digital readings
+			if (ppmReadings[i] > 0 &&  ppmReadings[i] < 1000000)
 				output += String(ppmReadings[i]);
-			} else {
-				output += String(-1);
-			}
-				output += ",";
-			}
-			for (int i = 0; i < 2; i++) {					//* analog readings
-				output += String(voltageReadings[i]);
-				output += ",";
-			}
-
-			if (DEBUG)
-				Serial.println(output);
-			wifiSerial.println(output);
+			else output += String(-1);
+			output += ",";
 		}
+		for (int i = 0; i < 2; i++) {					//* analog readings
+			output += String(voltageReadings[i]);
+			output += ",";
+		}
+
+		if (DEBUG)
+			Serial.println(output);
+		wifiSerial.println(output);
 
 		timer1 = millis();  //? Reset timer
 	}
