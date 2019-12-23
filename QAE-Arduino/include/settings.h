@@ -19,7 +19,7 @@
 
 #define DEBUG true
 #define USB_BAUDRATE 9600
-#define WIFI_BAUDRATE 115200
+#define WIFI_BAUDRATE 9600
 
 //* Time in milliseconds for sensor update
 #define SENSOR_RATE 2000

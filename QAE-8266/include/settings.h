@@ -17,7 +17,7 @@
     Here are the settings for Wifi & API connection.
 */
 #define DEBUG true
-#define WIFI_BAUDRATE 115200
+#define WIFI_BAUDRATE 9600
 
 #define QAE_SSID "rpi"
 #define QAE_SECURITY_TYPE "open"
