@@ -173,9 +173,17 @@
 
         refresh();
 
-        if ($(window).width() < 700) {
+        if ($(window).width() < 700 && $(window).height() > $(window).width()) {
             M.toast({ html: '<i class="material-icons">screen_rotation</i><span>Please rotate your phone to see the whole chart.</span>' })
         }
+
+        $(window).resize(function () {
+            if ($(window).width() < 700 && $(window).height() > $(window).width()) {
+                M.toast({ html: '<i class="material-icons">screen_rotation</i><span>Please rotate your phone to see the whole chart.</span>' });
+            } else {
+                M.Toast.dismissAll();
+            }
+        });
     });
 
     function refresh() {
