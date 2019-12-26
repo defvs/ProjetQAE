@@ -69,7 +69,7 @@
 <script src="js/jquery.min.js"></script>
 <script src="js/materialize.min.js"></script>
 <script>
-    const colors = ["#fcba03", "#56fc03", "#56fc03", "#054eeb", "#8f05eb", "#eb05e0", "#05ebeb"]
+    const colors = ["#fcba03", "#56fc03", "#ff0000", "#054eeb", "#8f05eb", "#eb05e0", "#05ebeb"]
 
     Object.map = function (o, f, ctx) {
         ctx = ctx || this;
@@ -132,7 +132,7 @@
                 text: "Qualité de l'air (Analog)"
             },
             tooltips: {
-                mode: 'index',
+                mode: 'nearest',
                 intersect: false,
             },
             hover: {
@@ -164,7 +164,7 @@
         var elems = document.querySelectorAll('.sidenav');
         M.Sidenav.init(elems, { edge: "right", onCloseStart: refresh });
 
-        M.Tabs.init($('.tabs')[0], { onShow: refresh });
+        M.Tabs.init($('.tabs')[0] /*, { onShow: refresh } */);
 
         var ctx1 = document.getElementById('canvas1').getContext('2d');
         chart1 = new Chart(ctx1, config1);
@@ -189,7 +189,18 @@
     function refresh() {
         var limit = document.getElementById('limit').value;
         $.getJSON("http://localhost/api.php?limit=" + limit, function (obj) {
-            var labels_obj = Object.map(obj, (value) => { return value.numeric.time; });
+            // Numeric data
+            var labels_obj = Object.map(obj, (value) => {
+                var epoch = Date.parse(value.numeric.time);
+                var date = new Date(epoch);
+                return date.toLocaleTimeString(undefined, {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                    timeZoneName: "short"
+                })
+            });
+
             var arr = $.map(obj, function (el) { return el });
 
             for (const key in obj) {
@@ -220,6 +231,47 @@
             chart1.config.data.labels = Object.values(labels_obj);
             chart1.config.data.datasets = Object.values(datasets_obj);
             chart1.update();
+
+            // Analog data
+            labels_obj = Object.map(obj, (value) => {
+                var epoch = Date.parse(value.analog.time);
+                var date = new Date(epoch);
+                return date.toLocaleTimeString(undefined, {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                    timeZoneName: "short"
+                })
+            });
+
+            for (const key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    const element = obj[key];
+                    
+                    delete element.analog.time;
+                }
+            }
+
+            dataset_names = Object.keys(obj[0].analog);
+
+            datasets_obj = Object.map(dataset_names, (element, index) => {
+                var data = Object.values(Object.map(obj, (value) => { return value.analog[dataset_names[index]]; }));
+                data.forEach((element, index) => {
+                    data[index] = parseFloat(element);
+                });
+
+                return {
+                    backgroundColor: colors[index],
+                    borderColor: colors[index],
+                    fill: false,
+                    label: element,
+                    data: data,
+                };
+            });
+
+            chart2.config.data.labels = Object.values(labels_obj);
+            chart2.config.data.datasets = Object.values(datasets_obj);
+            chart2.update();
         });
     }
 </script>
