@@ -1,114 +1,219 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
     <title>ProjetQAE</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <style>
+        canvas {
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+    </style>
 </head>
 
-<body>
-    <div>
-        <canvas id="canvas"></canvas>
+<header>
+    <div class="navbar">
+        <nav class="nav-extended deep-purple darken-3">
+            <div class="nav-wrapper">
+                <a href="#" class="brand-logo center">ProjetQAE</a>
+            </div>
+            <div class="nav-content">
+                <div class="container">
+                    <ul class="tabs tabs-transparent tabs-fixed-width">
+                        <li class="tab"><a class="active" href="#digital">Digital readings</a></li>
+                        <li class="tab"><a href="#analog">Analog readings</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
     </div>
-    <br />
-    <br />
-    <input type="number" id="limit" min="3" max="100" value="10" step="1" />
-    <button id="update">Update</button>
-    <script>
-        const colors = ["#fcba03", "#56fc03", "#56fc03", "#054eeb", "#8f05eb", "#eb05e0", "#05ebeb"]
+</header>
 
-        Object.map = function (o, f, ctx) {
-            ctx = ctx || this;
-            var result = {};
-            Object.keys(o).forEach(function (k) {
-                result[k] = f.call(ctx, o[k], k, o);
-            });
-            return result;
-        }
+<div class="fixed-action-btn">
+    <a class="sidenav-trigger btn-floating btn-small waves-effect waves-light deep-orange accent-3 tooltipped"
+        data-position="top" data-tooltip="Time filtering" data-target="slide-out" style="right: 64px; bottom: 12px"><i
+            class="material-icons">access_time</i></a>
+</div>
+<div class="fixed-action-btn">
+    <a class="btn-floating btn-large waves-effect waves-light deep-orange accent-3 tooltipped" data-position="top"
+        data-tooltip="Time filtering" onclick="refresh()">
+        <i class="material-icons">refresh</i></a>
+</div>
 
-        var config = {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: []
+<ul id="slide-out" class="sidenav no-autoinit">
+    <li>
+        <h5 class="center">Time filtering</h3>
+    </li>
+
+    <li class="container row valign-wrapper"><input class="col s6" type="number" id="limit" min="3" max="100" value="10"
+            step="1" />
+        <p class="col s6"> data points</p>
+    </li>
+</ul>
+
+<body>
+    <div id="digital" class="container">
+        <canvas id="canvas1"></canvas>
+    </div>
+    <div id="analog" class="container">
+        <canvas id="canvas2"></canvas>
+    </div>
+</body>
+
+<script src="js/chart.js"></script>
+<script src="js/jquery.min.js"></script>
+<script src="js/materialize.min.js"></script>
+<script>
+    const colors = ["#fcba03", "#56fc03", "#56fc03", "#054eeb", "#8f05eb", "#eb05e0", "#05ebeb"]
+
+    Object.map = function (o, f, ctx) {
+        ctx = ctx || this;
+        var result = {};
+        Object.keys(o).forEach(function (k) {
+            result[k] = f.call(ctx, o[k], k, o);
+        });
+        return result;
+    }
+
+    var config1 = {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: "Qualité de l'air (Digital)"
             },
-            options: {
-                responsive: true,
-                title: {
+            tooltips: {
+                mode: 'nearest',
+                intersect: false,
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                x: {
                     display: true,
-                    text: "Qualité de l'air"
-                },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
-                },
-                hover: {
-                    mode: 'nearest',
-                    intersect: true
-                },
-                scales: {
-                    x: {
+                    scaleLabel: {
                         display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Time'
-                        }
-                    },
-                    y: {
+                        labelString: 'Time'
+                    }
+                },
+                y: {
+                    display: true,
+                    scaleLabel: {
                         display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Value'
-                        }
+                        labelString: 'PPM'
                     }
                 }
             }
-        };
+        }
+    };
 
-        window.onload = function () {
-            var ctx = document.getElementById('canvas').getContext('2d');
-            var chart = new Chart(ctx, config);
-        };
-
-        document.getElementById('update').addEventListener('click', updateGraph);
-
-        function updateGraph() {
-            var limit = document.getElementById('limit').value;
-            $.getJSON("http://localhost/api.php?limit=" + limit, function (obj) {
-                var labels_obj = Object.map(obj, (value) => { return value.numeric.time; });
-                var arr = $.map(obj, function (el) { return el });
-
-                for (const key in obj) {
-                    if (obj.hasOwnProperty(key)) {
-                        const element = obj[key];
-
-                        delete element.numeric.time;
+    var config2 = {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: "Qualité de l'air (Analog)"
+            },
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                x: {
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Time'
+                    }
+                },
+                y: {
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Volts'
                     }
                 }
+            }
+        }
+    };
 
-                var dataset_names = Object.keys(obj[0].numeric);
+    $(document).ready(function () {
+        M.AutoInit();
 
-                var datasets_obj = Object.map(dataset_names, (element, index) => {
-                    var data = Object.values(Object.map(obj, (value) => { return value.numeric[dataset_names[index]]; }));
+        var elems = document.querySelectorAll('.sidenav');
+        M.Sidenav.init(elems, { edge: "right", onCloseStart: refresh });
 
-                    return {
-                        backgroundColor: colors[index],
-                        borderColor: colors[index],
-                        fill: false,
-                        label: element,
-                        data: data,
-                    };
+        M.Tabs.init($('.tabs')[0], { onShow: refresh });
+
+        var ctx1 = document.getElementById('canvas1').getContext('2d');
+        chart1 = new Chart(ctx1, config1);
+        var ctx2 = document.getElementById('canvas2').getContext('2d');
+        chart2 = new Chart(ctx2, config2);
+
+        refresh();
+
+        if ($(window).width() < 700) {
+            M.toast({ html: '<i class="material-icons">screen_rotation</i><span>Please rotate your phone to see the whole chart.</span>' })
+        }
+    });
+
+    function refresh() {
+        var limit = document.getElementById('limit').value;
+        $.getJSON("http://localhost/api.php?limit=" + limit, function (obj) {
+            var labels_obj = Object.map(obj, (value) => { return value.numeric.time; });
+            var arr = $.map(obj, function (el) { return el });
+
+            for (const key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    const element = obj[key];
+
+                    delete element.numeric.time;
+                }
+            }
+
+            var dataset_names = Object.keys(obj[0].numeric);
+
+            var datasets_obj = Object.map(dataset_names, (element, index) => {
+                var data = Object.values(Object.map(obj, (value) => { return value.numeric[dataset_names[index]]; }));
+                data.forEach((element, index) => {
+                    data[index] = parseFloat(element);
                 });
 
-                chart.config.data.labels = Object.values(labels_obj);
-                chart.config.data.datasets = Object.values(datasets_obj);
+                return {
+                    backgroundColor: colors[index],
+                    borderColor: colors[index],
+                    fill: false,
+                    label: element,
+                    data: data,
+                };
             });
 
-            chart.update();
-            ctx.redraw();
-        }
-    </script>
-</body>
+            chart1.config.data.labels = Object.values(labels_obj);
+            chart1.config.data.datasets = Object.values(datasets_obj);
+            chart1.update();
+        });
+    }
+</script>
 
 </html>
