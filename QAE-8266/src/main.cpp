@@ -28,9 +28,12 @@
 HTTPClient client;  //? Http client for POST requests
 int sendHttpPost(String);
 
+unsigned long timer1 = 0;
+
 void setup() {
 	//* Setup serial communication with the Uno
 	Serial.begin(WIFI_BAUDRATE);
+	Serial.println();
 	Serial.println(F("ESP=poweron"));
 
 	//* Start wifi connection to the AP
@@ -53,6 +56,9 @@ void setup() {
 	}
 
 	while (1) {
+		if (millis() - timer1 >= 1000) {
+			Serial.println(F("ESP=wifiok"));
+		}
 		if (Serial.available())
 			if (Serial.readStringUntil('\n').startsWith("UNO=ok")) break;
 	}
@@ -74,7 +80,7 @@ void loop() {
 
 				received = received.substring(5);
 				if (DEBUG) Serial.println(received);
-				
+
 				String substring;
 				for (int i = 0; i < NUMERIC_VALUES_COUNT + ANALOG_VALUES_COUNT; i++) {
 					byte index = received.indexOf(',');
@@ -90,8 +96,8 @@ void loop() {
 				const size_t capacity = JSON_ARRAY_SIZE(NUMERIC_VALUES_COUNT + ANALOG_VALUES_COUNT) + JSON_OBJECT_SIZE(4);
 				DynamicJsonDocument doc(capacity);
 
-				doc["sender"] = API_SENDER; //* Sender
-				doc["password"] = API_PASSWORD; //* Password / passcode for the API
+				doc["sender"] = API_SENDER;		 //* Sender
+				doc["password"] = API_PASSWORD;  //* Password / passcode for the API
 
 				//* Values in an array
 				JsonArray values_numeric = doc.createNestedArray("values_numeric");
@@ -107,9 +113,9 @@ void loop() {
 				serializeJson(doc, jsonOutput);
 				sendHttpPost(jsonOutput);  //? Send to the API using HTTP POST request.
 
-			}else if (received.startsWith("ping")){
+			} else if (received.startsWith("ping")) {
 				Serial.println("ESP=pong");
-			}else if (received.startsWith("network")){
+			} else if (received.startsWith("network")) {
 				Serial.print("ESP=network=");
 				Serial.println(WiFi.localIP());
 			}  // else if (received.startsWith("something")){} to add new commands
