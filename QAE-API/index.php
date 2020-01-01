@@ -75,15 +75,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') { //! POST REQUEST (sending in data)
         echo "Wrong password";
     }
 } else if ($_SERVER['REQUEST_METHOD'] === 'GET') { //! GET REQUEST (requesting data)
-    if (isset($_GET['limit']) && (isset($_GET['start']) || isset($_GET['stop']))) {
+    if (isset($_GET['limit']) && (isset($_GET['start']) || isset($_GET['end']))) {
         http_response_code(403);
-        echo "limit and start/stop should not be specified together";
+        echo "limit and start/end should not be specified together";
         mysqli_close($sql);
         exit(0);
     } else if (isset($_GET['start'])) {
         $start = $_GET['start'];
-        if (isset($_GET['stop'])) {
-            $stop = $_GET['stop'];
+        if (isset($_GET['end'])) {
+            $stop = $_GET['end'];
             $condition = "time > $start AND time < $stop";
         } else {
             $condition = "time > $start";
