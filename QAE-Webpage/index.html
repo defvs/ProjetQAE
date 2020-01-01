@@ -45,14 +45,58 @@
         <i class="material-icons">refresh</i></a>
 </div>
 
-<ul id="slide-out" class="sidenav no-autoinit">
+<ul id="slide-out" class="sidenav no-autoinit" style="width: 80%">
     <li>
-        <h5 class="center">Time filtering</h3>
+        <h5 class="center">Data filtering</h3>
     </li>
 
     <li class="container row valign-wrapper"><input class="col s6" type="number" id="limit" min="3" max="100" value="10"
             step="1" />
         <p class="col s6"> data points</p>
+    </li>
+
+    <li class="divider" style="margin-bottom: 16px"></li>
+
+    <li class="container">
+        <div class="row">
+            <div class="col s6">
+                <div class="switch">
+                    <label>
+                        Time Filtering
+                        <input id="time_filter_enable" type="checkbox">
+                        <span class="lever"></span>
+                        On
+                    </label>
+                </div>
+            </div>
+            <div class="col s6">
+                <a class="right waves-effect btn" onclick="resetTimeFilter();">Reset</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12 m6 input-field">
+                <i class="material-icons prefix">date_range</i>
+                <input id="datestart" class="datepicker no-autoinit" type="text" />
+                <label for="datestart">Start Date</label>
+            </div>
+            <div class="col s12 m6 input-field">
+                <i class="material-icons prefix">access_time</i>
+                <input id="timestart" class="timepicker no-autoinit" type="text" />
+                <label for="timestart">Start Time</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12 m6 input-field">
+                <i class="material-icons prefix">date_range</i>
+                <input id="dateend" class="datepicker no-autoinit" type="text" />
+                <label for="dateend">End Date</label>
+            </div>
+            <div class="col s12 m6 input-field">
+                <i class="material-icons prefix">access_time</i>
+                <input id="timeend" class="timepicker no-autoinit" type="text" />
+                <label for="timeend">End Time</label>
+            </div>
+        </div>
     </li>
 </ul>
 
@@ -166,6 +210,12 @@
 
         M.Tabs.init($('.tabs')[0] /*, { onShow: refresh } */);
 
+        startTimePicker = M.Timepicker.init($('#timestart')[0], {twelveHour: false, defaultTime: "00:00"});
+        endTimePicker = M.Timepicker.init($('#timeend')[0], {twelveHour: false});
+
+        startDatePicker = M.Datepicker.init($('#datestart')[0], {autoClose: true, firstDay: 1, onClose: function() { startTimePicker.open() }});
+        endDatePicker = M.Datepicker.init($('#dateend')[0], {autoClose: true, firstDay: 1, onClose: function() { endTimePicker.open() }});
+
         var ctx1 = document.getElementById('canvas1').getContext('2d');
         chart1 = new Chart(ctx1, config1);
         var ctx2 = document.getElementById('canvas2').getContext('2d');
@@ -173,22 +223,80 @@
 
         refresh();
 
-        if ($(window).width() < 700 && $(window).height() > $(window).width()) {
-            M.toast({ html: '<i class="material-icons">screen_rotation</i><span>Please rotate your phone to see the whole chart.</span>' })
-        }
-
-        $(window).resize(function () {
+        function showSizeToast() {
             if ($(window).width() < 700 && $(window).height() > $(window).width()) {
-                M.toast({ html: '<i class="material-icons">screen_rotation</i><span>Please rotate your phone to see the whole chart.</span>' });
+                M.toast({ html: '<i class="material-icons">screen_rotation</i><span>Please rotate your phone to see the whole chart.</span>' })
             } else {
                 M.Toast.dismissAll();
             }
-        });
+        }
+
+        $(window).resize(showSizeToast);
+
+        function filterSet() {
+            if ($('#time_filter_enable')[0].checked) {
+                $('#datestart').prop("disabled", false);
+                $('#dateend').prop("disabled", false);
+                $('#timeend').prop("disabled", false);
+                $('#timestart').prop("disabled", false);
+
+                $('#limit').prop("disabled", true);
+            } else {
+                $('#datestart').prop("disabled", true);
+                $('#dateend').prop("disabled", true);
+                $('#timeend').prop("disabled", true);
+                $('#timestart').prop("disabled", true);
+
+                $('#limit').prop("disabled", false);
+            }
+        }
+        $('#time_filter_enable').change(filterSet);
+        filterSet();
     });
+
+    function resetTimeFilter() {
+        $('#datestart').val("");
+        $('#dateend').val("");
+        $('#timestart').val("");
+        $('#timeend').val("");
+    }
 
     function refresh() {
         var limit = document.getElementById('limit').value;
-        $.getJSON("http://localhost/api.php?limit=" + limit, function (obj) {
+        var startDate = $('#datestart').val();
+        var startTime = $('#timestart').val();
+        var endDate = $('#dateend').val();
+        var endTime = $('#timeend').val();
+
+        var queryURL = "http://localhost/api.php?"
+        if ($('#time_filter_enable')[0].checked && (startDate != "" || startTime != "")) {
+            if (startTime != "" && startDate != "") {
+                var start = new Date(`${startTime} ${startDate}`);
+            } else if (startTime != "") {
+                var start = new Date(`${new Date().toLocaleDateString("en-US")} ${startTime}`);
+            } else if (startDate != "") {
+                var start = new Date(startDate);
+            }
+
+            queryURL += `start="${String(start.getUTCFullYear()).padStart(2, '0')}-${String(start.getUTCMonth()).padStart(2, '0')}-${String(start.getUTCDate()).padStart(2, '0')} ${String(start.getUTCHours()).padStart(2, '0')}:${String(start.getUTCMinutes()).padStart(2, '0')}:${String(start.getUTCSeconds()).padStart(2, '0')}"`
+
+            var end = null;
+            if (endDate != "" && endTime != "") {
+                end = new Date(`${endTime} ${endDate}`);
+            } else if (endTime != "") {
+                end = new Date(`${new Date().toLocaleDateString("en-US")} ${endTime}`);
+            } else if (endDate != "") {
+                end = new Date(endDate);
+            }
+
+            if (end != null) {
+                queryURL += `&end="${String(end.getUTCFullYear()).padStart(2, '0')}-${String(end.getUTCMonth()).padStart(2, '0')}-${String(end.getUTCDate()).padStart(2, '0')} ${String(end.getUTCHours()).padStart(2, '0')}:${String(end.getUTCMinutes()).padStart(2, '0')}:${String(end.getUTCSeconds()).padStart(2, '0')}"`;
+            }
+        } else {
+            queryURL += `limit=${limit}`;
+        }
+
+        $.getJSON(queryURL, function (obj) {
             // Numeric data
             var labels_obj = Object.map(obj, (value) => {
                 var epoch = Date.parse(value.numeric.time);
@@ -247,7 +355,7 @@
             for (const key in obj) {
                 if (obj.hasOwnProperty(key)) {
                     const element = obj[key];
-                    
+
                     delete element.analog.time;
                 }
             }
