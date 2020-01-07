@@ -336,8 +336,9 @@
                 };
             });
 
-            chart1.config.data.labels = Object.values(labels_obj);
-            chart1.config.data.datasets = Object.values(datasets_obj);
+
+            chart1.config.data.labels = Object.values(labels_obj).reverse();
+            chart1.config.data.datasets = Object.values(datasets_obj).reverse();
             chart1.update();
 
             // Analog data
@@ -377,8 +378,8 @@
                 };
             });
 
-            chart2.config.data.labels = Object.values(labels_obj);
-            chart2.config.data.datasets = Object.values(datasets_obj);
+            chart2.config.data.labels = Object.values(labels_obj).reverse();
+            chart2.config.data.datasets = Object.values(datasets_obj).reverse();
             chart2.update();
         });
     }
